@@ -5,29 +5,29 @@
 #define MAX_NOME 50
 #define MAX_USUARIOS 100
 #define MAX_FILA 100
+#define INFINITO 9999
 
-typedef struct NoAmigo{
-    int idAmigo;
-    struct NoAmigo* prox;
+typedef struct NoAmigo {
+    int idAmigo;                // ID do usuário amigo
+    struct NoAmigo* prox;       // Ponteiro para o próximo nó na lista de amigos
 } NoAmigo;
 
 typedef struct Usuario {
-    int id;
-    char nome[MAX_NOME];
-    NoAmigo* listaAmigos;
-    int visitado;
+    int id;                     // Identificador único do usuário
+    char nome[MAX_NOME];         // Nome do usuário (máx 50 caracteres)
+    NoAmigo* listaAmigos;       // Lista encadeada de amigos (lista de adjacência)
+    int visitado;               // Flag para algoritmos de busca (BFS/DFS)
 } Usuario;
 
 typedef struct Grafo {
-    Usuario usuarios[MAX_USUARIOS];
-    int totalUsuarios;
+    Usuario usuarios[MAX_USUARIOS];  // Vetor estático de usuários (máx 100)
+    int totalUsuarios;               // Contador de usuários ativos
 } Grafo;
 
-// Estrutura simples de fila para BFS
-typedef struct {
-    int itens[MAX_FILA];
-    int frente;
-    int tras;
+typedef struct Fila {
+    int itens[MAX_FILA];        // Vetor para armazenar elementos
+    int frente;                 // Índice do primeiro elemento
+    int tras;                   // Índice do último elemento
 } Fila;
 
 // Função para adicionar um novo usuário ao grafo
@@ -257,8 +257,6 @@ void dfs(Grafo* grafo, int idInicial) {
     printf("DFS a partir de '%s' (ID %d):\n", grafo->usuarios[indiceInicial].nome, idInicial);
     dfsVisita(grafo, idInicial);
 }
-
-#define INFINITO 9999
 
 // 7. Função para sugerir amigos com base em BFS
 void sugerirAmigos(Grafo* grafo, int idUsuario) {
