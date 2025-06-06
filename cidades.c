@@ -6,45 +6,40 @@
 #define TAM_NOME 50
 #define INFINITO 1000000
 
-// 1.2 - Estrutura de uma rota (aresta)
 typedef struct Rota {
-    int destino;              // Índice da cidade de destino no vetor de cidades
-    int custo;                // Custo da rota (ex: distância, tempo)
-    struct Rota* prox;        // Próxima rota da lista de adjacência
+    int destino;            
+    int custo;               
+    struct Rota* prox;      
 } Rota;
 
-// 1.1 - Estrutura de uma cidade (vértice)
+
 typedef struct {
-    char nome[TAM_NOME];      // Nome da cidade
-    Rota* rotas;              // Lista de rotas (adjacência)
+    char nome[TAM_NOME];     
+    Rota* rotas;            
 } Cidade;
 
-// 1.3 - Estrutura do mapa (grafo)
+
 typedef struct {
-    Cidade cidades[MAX_CIDADES]; // Vetor de cidades
-    int totalCidades;            // Número de cidades cadastradas
+    Cidade cidades[MAX_CIDADES];
+    int totalCidades;            
 } Mapa;
 
-// Função para buscar o índice de uma cidade pelo nome
+// Função para buscar índice pelo nome
 int buscarIndiceCidade(Mapa* mapa, const char* nome) {
     for (int i = 0; i < mapa->totalCidades; i++) {
         if (strcmp(mapa->cidades[i].nome, nome) == 0) {
             return i;
         }
     }
-    return -1;  // Não encontrada
+    return -1;  // Cidade não encontrada
 }
 
-// 2.1 e 2.2 - Função para adicionar uma cidade
-void adicionarCidade(Mapa* mapa) {
+// Adiciona cidade
+void adicionarCidade(Mapa* mapa, const char* nome) {
     if (mapa->totalCidades >= MAX_CIDADES) {
         printf("Limite máximo de cidades atingido.\n");
         return;
     }
-
-    char nome[TAM_NOME];
-    printf("Digite o nome da cidade: ");
-    scanf(" %[^\n]", nome);
 
     // Verifica se a cidade já existe
     if (buscarIndiceCidade(mapa, nome) != -1) {
@@ -70,17 +65,7 @@ void inserirRota(Cidade* origem, int destinoIndice, int custo) {
 }
 
 // Função para cadastrar rota entre duas cidades
-void cadastrarRota(Mapa* mapa) {
-    char nomeOrigem[TAM_NOME], nomeDestino[TAM_NOME];
-    int custo;
-
-    printf("Digite o nome da cidade de origem: ");
-    scanf(" %[^\n]", nomeOrigem);
-    printf("Digite o nome da cidade de destino: ");
-    scanf(" %[^\n]", nomeDestino);
-    printf("Digite o custo da rota: ");
-    scanf("%d", &custo);
-
+void cadastrarRota(Mapa* mapa, const char* nomeOrigem, const char* nomeDestino, int custo) {
     int iOrigem = buscarIndiceCidade(mapa, nomeOrigem);
     int iDestino = buscarIndiceCidade(mapa, nomeDestino);
 
@@ -92,7 +77,7 @@ void cadastrarRota(Mapa* mapa) {
     // Adiciona rota da origem para destino
     inserirRota(&mapa->cidades[iOrigem], iDestino, custo);
 
-    // Adiciona rota da destino para origem (bidirecional)
+    // Adiciona rota da destino para origem (ambas direções)
     inserirRota(&mapa->cidades[iDestino], iOrigem, custo);
 
     printf("Rota entre '%s' e '%s' adicionada com sucesso.\n", nomeOrigem, nomeDestino);
@@ -174,7 +159,7 @@ void dijkstra(Mapa* mapa, const char* nomeOrigem, const char* nomeDestino) {
 
         visitado[u] = 1;
 
-        // Atualizar distâncias dos vizinhos
+        // Atualizar distâncias vizinhos
         Rota* rota = mapa->cidades[u].rotas;
         while (rota != NULL) {
             int v = rota->destino;
@@ -211,9 +196,11 @@ void dijkstra(Mapa* mapa, const char* nomeOrigem, const char* nomeDestino) {
 void menu(Mapa* mapa) {
     int opcao;
     char origem[TAM_NOME], destino[TAM_NOME];
+    char nome[TAM_NOME];
+    int custo;
 
     do {
-        printf("\n===== MENU =====\n");
+        printf("\nMENU\n");
         printf("1. Cadastrar cidade\n");
         printf("2. Cadastrar rota\n");
         printf("3. Visualizar cidades\n");
@@ -222,14 +209,22 @@ void menu(Mapa* mapa) {
         printf("6. Sair\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
-        getchar(); // consumir newline
+        getchar();
 
         switch(opcao) {
             case 1:
-                cadastrarCidade(mapa);
+                printf("Digite o nome da cidade: ");
+                scanf(" %[^\n]", nome);
+                adicionarCidade(mapa, nome);
                 break;
             case 2:
-                cadastrarRota(mapa);
+                printf("Digite o nome da cidade de origem: ");
+                scanf(" %[^\n]", origem);
+                printf("Digite o nome da cidade de destino: ");
+                scanf(" %[^\n]", destino);
+                printf("Digite o custo da rota: ");
+                scanf("%d", &custo);
+                cadastrarRota(mapa, origem, destino, custo);
                 break;
             case 3:
                 exibirCidades(mapa);
@@ -257,24 +252,26 @@ int main() {
     Mapa mapa;
     mapa.totalCidades = 0;
 
-    // --- Cadastro de cidades ---
-    adicionarCidadeManual(&mapa, "A");
-    adicionarCidadeManual(&mapa, "B");
-    adicionarCidadeManual(&mapa, "C");
-    adicionarCidadeManual(&mapa, "D");
-    adicionarCidadeManual(&mapa, "E");
+    // Cadastro de cidades 
+    adicionarCidade(&mapa, "A");
+    adicionarCidade(&mapa, "B");
+    adicionarCidade(&mapa, "C");
+    adicionarCidade(&mapa, "D");
+    adicionarCidade(&mapa, "E");
 
-    // --- Cadastro de rotas ---
-    adicionarRotaManual(&mapa, "A", "B", 4);
-    adicionarRotaManual(&mapa, "A", "C", 2);
-    adicionarRotaManual(&mapa, "B", "C", 1);
-    adicionarRotaManual(&mapa, "B", "D", 5);
-    adicionarRotaManual(&mapa, "C", "D", 8);
-    adicionarRotaManual(&mapa, "C", "E", 10);
-    adicionarRotaManual(&mapa, "D", "E", 2);
+    // Cadastro de rotas 
+    cadastrarRota(&mapa, "A", "B", 4);
+    cadastrarRota(&mapa, "A", "C", 2);
+    cadastrarRota(&mapa, "B", "C", 1);
+    cadastrarRota(&mapa, "B", "D", 5);
+    cadastrarRota(&mapa, "C", "D", 8);
+    cadastrarRota(&mapa, "C", "E", 10);
+    cadastrarRota(&mapa, "D", "E", 2);
 
-    // --- Teste do menor caminho ---
+    // Teste do menor caminho
     dijkstra(&mapa, "A", "E");
+
+    menu(&mapa);
 
     return 0;
 }

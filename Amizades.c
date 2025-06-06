@@ -1,38 +1,37 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>    
 #include <string.h>
 
-#define MAX_NOME 50
+#define MAX_NOME 50 
 #define MAX_USUARIOS 100
-#define MAX_FILA 100
+#define MAX_FILA 100 
 #define INFINITO 9999
 
 typedef struct NoAmigo {
-    int idAmigo;                // ID do usuário amigo
-    struct NoAmigo* prox;       // Ponteiro para o próximo nó na lista de amigos
+    int idAmigo;
+    struct NoAmigo* prox;  
 } NoAmigo;
 
 typedef struct Usuario {
-    int id;                     // Identificador único do usuário
-    char nome[MAX_NOME];         // Nome do usuário (máx 50 caracteres)
-    NoAmigo* listaAmigos;       // Lista encadeada de amigos (lista de adjacência)
-    int visitado;               // Flag para algoritmos de busca (BFS/DFS)
+    int id; 
+    char nome[MAX_NOME];  
+    NoAmigo* listaAmigos; 
+    int visitado;  
 } Usuario;
 
 typedef struct Grafo {
-    Usuario usuarios[MAX_USUARIOS];  // Vetor estático de usuários (máx 100)
-    int totalUsuarios;               // Contador de usuários ativos
+    Usuario usuarios[MAX_USUARIOS];
+    int totalUsuarios;  
 } Grafo;
 
 typedef struct Fila {
-    int itens[MAX_FILA];        // Vetor para armazenar elementos
-    int frente;                 // Índice do primeiro elemento
-    int tras;                   // Índice do último elemento
+    int itens[MAX_FILA];
+    int frente; 
+    int tras;
 } Fila;
 
 // Função para adicionar um novo usuário ao grafo
 void adicionarUsuario(Grafo* grafo, int id, const char* nome) {
-    // Verifica se há espaço no vetor de usuários
     if (grafo->totalUsuarios >= MAX_USUARIOS) {
         printf("Erro: número máximo de usuários atingido.\n");
         return;
@@ -46,16 +45,15 @@ void adicionarUsuario(Grafo* grafo, int id, const char* nome) {
         }
     }
 
-    // 2.1 - Referência ao próximo espaço disponível
+    // Referência ao próximo espaço disponível
     Usuario* novo = &grafo->usuarios[grafo->totalUsuarios];
 
-    // 2.2 - Inicialização dos dados
+    // Inicialização dos dados
     novo->id = id;
     strncpy(novo->nome, nome, MAX_NOME);
     novo->listaAmigos = NULL;
     novo->visitado = 0;
 
-    // 2.3 - Incrementar total de usuários
     grafo->totalUsuarios++;
 
     printf("Usuário '%s' (ID %d) adicionado com sucesso!\n", nome, id);
@@ -74,7 +72,7 @@ void adicionarNaListaDeAmigos(Usuario* usuario, int idAmigo) {
     usuario->listaAmigos = novoAmigo;
 }
 
-// Função para encontrar índice de usuário no vetor (pelo ID)
+// Função para encontrar índice de usuário no vetor pelo ID
 int encontrarIndiceUsuario(Grafo* grafo, int id) {
     for (int i = 0; i < grafo->totalUsuarios; i++) {
         if (grafo->usuarios[i].id == id) {
@@ -84,50 +82,49 @@ int encontrarIndiceUsuario(Grafo* grafo, int id) {
     return -1; // Não encontrado
 }
 
-// 3. Função para criar uma conexão (amizade) entre dois usuários
+// Função para criar uma conexão entre dois usuários
 void criarConexao(Grafo* grafo, int id1, int id2) {
     if (id1 == id2) {
         printf("Erro: um usuário não pode ser amigo de si mesmo.\n");
-        return;
+        return; 
     }
 
     int indice1 = encontrarIndiceUsuario(grafo, id1);
     int indice2 = encontrarIndiceUsuario(grafo, id2);
 
-    // 3.1 - Verificar se ambos os usuários existem
+    // Verificar se os usuários existem
     if (indice1 == -1 || indice2 == -1) {
         printf("Erro: um ou ambos os usuários não foram encontrados.\n");
         return;
-    }
+    }   
 
     Usuario* usuario1 = &grafo->usuarios[indice1];
     Usuario* usuario2 = &grafo->usuarios[indice2];
 
-    // 3.2 - Adicionar um ao outro nas respectivas listas de amigos
-    adicionarNaListaDeAmigos(usuario1, id2);
+    // Adiciona um ao outro nas respectivas listas de amigos
+    adicionarNaListaDeAmigos(usuario1, id2);    
     adicionarNaListaDeAmigos(usuario2, id1);
 
-    // 3.3 - Conexão criada com sucesso
     printf("Conexão criada entre '%s' (ID %d) e '%s' (ID %d).\n",
            usuario1->nome, id1, usuario2->nome, id2);
 }
 
-// 4. Função para exibir os amigos de um usuário
+//  Função para exibir os amigos de um usuário
 void visualizarAmigos(Grafo* grafo, int idUsuario) {
     int indice = encontrarIndiceUsuario(grafo, idUsuario);
 
-    // 4.1 - Verificar se o usuário existe
+    // Verifica se o usuário existe
     if (indice == -1) {
         printf("Usuário com ID %d não encontrado.\n", idUsuario);
         return;
     }
 
     Usuario* usuario = &grafo->usuarios[indice];
-    NoAmigo* atual = usuario->listaAmigos;
+    NoAmigo* atual = usuario->listaAmigos;      
 
     printf("Amigos de '%s' (ID %d):\n", usuario->nome, usuario->id);
 
-    // 4.2 - Percorrer a lista de amigos e exibir nomes/IDs
+    // Percorre a lista de amigos e exibi nomes/IDs
     if (atual == NULL) {
         printf("  Nenhum amigo encontrado.\n");
         return;
@@ -145,9 +142,9 @@ void visualizarAmigos(Grafo* grafo, int idUsuario) {
 }
 
 // Inicializa a fila
-void inicializarFila(Fila* f) {
+void inicializarFila(Fila* f) {     
     f->frente = 0;
-    f->tras = 0;
+    f->tras = 0;    
 }
 
 // Verifica se a fila está vazia
@@ -163,14 +160,14 @@ void enfileirar(Fila* f, int valor) {
 }
 
 // Desenfileira um elemento
-int desenfileirar(Fila* f) {
+int desenfileirar(Fila* f) {    
     if (!filaVazia(f)) {
         return f->itens[f->frente++];
-    }
+    } 
     return -1;
 }
 
-// 5. Função de busca em largura (BFS)
+// Função de busca em largura (BFS)
 void bfs(Grafo* grafo, int idInicial) {
     int indiceInicial = encontrarIndiceUsuario(grafo, idInicial);
 
@@ -179,21 +176,21 @@ void bfs(Grafo* grafo, int idInicial) {
         return;
     }
 
-    // 5.1 - Inicializa fila e visitados
+    // Inicializa fila e visitados  
     Fila fila;
     inicializarFila(&fila);
 
     for (int i = 0; i < grafo->totalUsuarios; i++) {
-        grafo->usuarios[i].visitado = 0; // limpa marcações anteriores
+        grafo->usuarios[i].visitado = 0; // limpa marcações
     }
 
-    // 5.2 - Marca o usuário inicial como visitado e enfileira
+    // Marca o usuário inicial como visitado e enfileira
     grafo->usuarios[indiceInicial].visitado = 1;
     enfileirar(&fila, idInicial);
 
     printf("BFS a partir de '%s' (ID %d):\n", grafo->usuarios[indiceInicial].nome, idInicial);
 
-    // 5.3 - Laço principal do BFS
+    // Laço principal do BFS
     while (!filaVazia(&fila)) {
         int idAtual = desenfileirar(&fila);
         int indiceAtual = encontrarIndiceUsuario(grafo, idAtual);
@@ -223,11 +220,11 @@ void dfsVisita(Grafo* grafo, int idUsuario) {
 
     Usuario* usuario = &grafo->usuarios[indice];
 
-    // 6.2 - Marcar como visitado
+    // Marca como visitado
     usuario->visitado = 1;
     printf("Visitando: %s (ID %d)\n", usuario->nome, usuario->id);
 
-    // 6.3 - Para cada amigo não visitado, chamar recursivamente
+    // Para cada amigo não visitado, chama recursivamente
     NoAmigo* amigo = usuario->listaAmigos;
     while (amigo != NULL) {
         int idAmigo = amigo->idAmigo;
@@ -236,12 +233,12 @@ void dfsVisita(Grafo* grafo, int idUsuario) {
         if (indiceAmigo != -1 && grafo->usuarios[indiceAmigo].visitado == 0) {
             dfsVisita(grafo, idAmigo);
         }
-
+        
         amigo = amigo->prox;
     }
 }
 
-// 6.1 - Função principal de DFS
+// unção principal de DFS
 void dfs(Grafo* grafo, int idInicial) {
     int indiceInicial = encontrarIndiceUsuario(grafo, idInicial);
     if (indiceInicial == -1) {
@@ -258,7 +255,7 @@ void dfs(Grafo* grafo, int idInicial) {
     dfsVisita(grafo, idInicial);
 }
 
-// 7. Função para sugerir amigos com base em BFS
+// Função para sugerir amigos com base em BFS
 void sugerirAmigos(Grafo* grafo, int idUsuario) {
     int indiceInicial = encontrarIndiceUsuario(grafo, idUsuario);
     if (indiceInicial == -1) {
@@ -276,7 +273,7 @@ void sugerirAmigos(Grafo* grafo, int idUsuario) {
     Fila fila;
     inicializarFila(&fila);
 
-    // 7.1 - Início do BFS
+    // Início do BFS
     distancia[indiceInicial] = 0;
     grafo->usuarios[indiceInicial].visitado = 1;
     enfileirar(&fila, idUsuario);
@@ -299,7 +296,7 @@ void sugerirAmigos(Grafo* grafo, int idUsuario) {
         }
     }
 
-    // 7.2 e 7.3 - Verificar usuários a distância 2 (amigos de amigos que não são amigos diretos)
+    // Verifica usuários a distância 2 (amigos de amigos que não são amigos diretos)
     printf("Sugestões de amizade para '%s' (ID %d):\n", grafo->usuarios[indiceInicial].nome, idUsuario);
     int encontrou = 0;
 
@@ -316,7 +313,7 @@ void sugerirAmigos(Grafo* grafo, int idUsuario) {
                 amigo = amigo->prox;
             }
 
-            // 7.4 - Se não é amigo direto, sugerir
+            // Se não for amigo, sugere
             if (!ehAmigoDireto) {
                 printf("  - %s (ID %d)\n", grafo->usuarios[i].nome, grafo->usuarios[i].id);
                 encontrou = 1;
@@ -329,9 +326,24 @@ void sugerirAmigos(Grafo* grafo, int idUsuario) {
     }
 }
 
+void preencherUsuariosTeste(Grafo* grafo) {
+    adicionarUsuario(grafo, 1, "Alice");
+    adicionarUsuario(grafo, 2, "Bob");
+    adicionarUsuario(grafo, 3, "Carlos");
+    adicionarUsuario(grafo, 4, "Diana");
+    adicionarUsuario(grafo, 5, "Eduardo");
+
+    criarConexao(grafo, 1, 2);
+    criarConexao(grafo, 1, 3);
+    criarConexao(grafo, 2, 4);
+    criarConexao(grafo, 3, 5);
+}
+
 int main() {
     Grafo grafo;
     grafo.totalUsuarios = 0;
+
+    preencherUsuariosTeste(&grafo);
 
     int opcao;
     do {
@@ -352,7 +364,7 @@ int main() {
             printf("ID do usuário: ");
             scanf("%d", &id);
             printf("Nome do usuário: ");
-            scanf(" %[^\n]", nome); // lê nome com espaços
+            scanf(" %[^\n]", nome);
             adicionarUsuario(&grafo, id, nome);
         }
 
